@@ -1,0 +1,63 @@
+body{
+    font-family: 'Roboto', sans-serif;
+}
+
+h4{
+    font-weight: 500;
+    font-size: 20pt;
+}
+
+h1{
+    font-weight: 500;
+    font-size: 40pt;
+}
+
+#logo{
+    font-weight: 500;
+    font-size: 25pt;
+}
+
+aside{
+    float: left;
+    margin-left: 9%;
+    width: 40%;
+    margin-top: 5%;
+}
+
+#lezioni{
+    float:right;
+    margin-right: 10%;
+    width: 40%;
+    margin-top: 5%;
+}
+
+#tablezioni{
+    height: 300px;
+    overflow: auto;
+}
+
+#areapersonale{
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-top:35%;
+    clear:both;
+}
+
+
+
+#stati{
+    margin-top:5%;
+}
+
+button{
+    margin: 1%;
+}
+
+@media screen and (max-width: 992px) {
+    #lezioni {
+        display: none;
+    }
+    aside{
+        width: 85%;
+    }
+}

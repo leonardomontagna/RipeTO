@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="it" xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>RipeTO</title>
+    <!-- Bootstrap CSS 4.3.1 -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+    <!-- Responsive Layout -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- VueJS -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- Font Awesome -->
+    <script src="https://kit.fontawesome.com/8fbc4bffa3.js" crossorigin="anonymous"></script>
+    <!-- FONT -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body class="body">
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<div id="app">
+    <!-- NAVBAR -->
+     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+
+         <a class="navbar-brand" href="#" id="logo">
+             <img src="img/icona_ripeTO.svg" width="50" height="50" alt="logo del sito">
+             RipeTO
+         </a>
+
+         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+             <span class="navbar-toggler-icon"></span>
+         </button>
+
+         <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item" v-if="tipo === 'amministratore\r\n'">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalDocente"><i class="fas fa-chalkboard-teacher"></i> Docente</button>
+                </li>
+                <li class="nav-item" v-if="tipo === 'amministratore\r\n'">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalCorso"><i class="fas fa-book"></i> Corso</button>
+                </li>
+                <li class="nav-item" v-if="tipo === 'amministratore\r\n'">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalLezione"><i class="fas fa-plus-circle"></i> Lezione</button>
+                </li>
+                <li>
+                    <div v-if="!islogged">
+                        <button class="btn btn-primary" data-toggle="modal" data-target="#modalLogin"><i class="fas fa-user"></i> Login</button>
+                    </div>
+                    <div v-else>
+                        <button v-on:click="logout" class="btn btn-primary"><i class="fas fa-user"></i> Logout</button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- MODAL DOCENTI -->
+    <div class="modal fade" id="modalDocente" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitleDocente">Aggiungi un nuovo docente</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <label for="id_docente">ID docente:</label><br>
+                    <input type="text" id="id_docente" class="form-control" placeholder="12345678" v-model="id_docente"><br>
+                    <label for="nome_docente">Nome docente:</label><br>
+                    <input type="text" id="nome_docente" class="form-control" placeholder="Marco Rossi" v-model="nome_docente"><br>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" v-on:click="addDocente" class="btn btn-success">Aggiungi</button>
+                    <button class="btn btn-danger" v-on:click="remDocente">Elimina</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CORSI -->
+    <div class="modal fade" id="modalCorso" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Aggiungi un nuovo corso</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <label for="id_corso">ID Corso:</label><br>
+                    <input type="text" id="id_corso" class="form-control" placeholder="Es. 154" v-model="id_corso"><br>
+                    <label for="titolo">Nome Corso:</label><br>
+                    <input type="text" id="titolo" class="form-control" placeholder="Es. Reti I" v-model="titolo"><br>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" v-on:click="addMateria"class="btn btn-success">Aggiungi</button>
+                    <button class="btn btn-danger" v-on:click="remCorsi" >Elimina</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL LEZIONI -->
+    <div class="modal fade" id="modalLezione" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitleLezione">Aggiungi una nuova lezione</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <label for="id_lezione">Corso:</label><br>
+                    <select @change="getMaterie" class="custom-select transparentback" v-model="selectedmateri" id="id_lezione">
+                        <option value="-Nessuna materia-">-Nessuna materia-</option>
+                        <option v-for="materia in materie">{{ materia.titolo }}</option>
+                    </select><br>
+                    <label for="nome_lezione">Docente:</label><br>
+                    <select @change="getDocenti" class="custom-select transparentback" v-model="selectedpro" id="nome_lezione">
+                        <option value="-Nessun professore-">-Nessun professore-</option>
+                        <option v-for="prof in docenti">{{ prof.nome }}</option>
+                    </select><br>
+                    <label for="day">Giorno:</label>
+                    <select class="custom-select" id="day"  v-model="selectedgiorn">
+                        <option selected value="-Nessun giorno-">-Nessun giorno-</option>
+                        <option value="Lunedi">Lunedì</option>
+                        <option value="Martedi">Martedì</option>
+                        <option value="Mercoledi">Mercoledì</option>
+                        <option value="Giovedi">Giovedì</option>
+                        <option value="Venerdi">Venerdì</option>
+                    </select>
+                    <label for="time">Ora:</label>
+                    <select class="custom-select" id="time" v-model="selectedorari">
+                        <option selected value="-Nessun orario-">-Nessun orario-</option>
+                        <option>dalle 15 alle 16</option>
+                        <option>dalle 16 alle 17</option>
+                        <option>dalle 17 alle 18</option>
+                        <option>dalle 18 alle 19</option>
+                    </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" v-on:click="addLesson" class="btn btn-success">Aggiungi</button>
+                    <button class="btn btn-danger" v-on:click="remLesson" >Elimina</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL LOGIN -->
+    <div class="modal fade" id="modalLogin" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitleLogin">Accedi a RipeTO!</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <label for="email">Email</label>
+                    <input type="email" class="form-control" v-model="username" id="email" placeholder="lucarossi@gmail.com" required><br>
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" v-model="password" id="password" placeholder="********" required>
+                    <p>{{ errore }}</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" v-on:click="login"class="btn btn-primary">Login</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <aside>
+        <div class="container-fluid">
+            <div v-if="tipo === 'ospite'">
+                <h4>Benvenuto, {{ tipo }}!</h4>
+            </div>
+            <div v-else>
+                <h4>Benvenuto {{ tipo }}</h4>
+                <h4>{{ username }}!</h4>
+            </div>
+
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-8">
+                        <label for="materia">Materia:</label>
+                        <select @change="getMaterie" class="custom-select transparentback" v-model="selectedmateria" id="materia">
+                            <option value="-Nessuna materia-">-Nessuna materia-</option>
+                            <option v-for="materia in materie">{{ materia.titolo }}</option>
+                        </select>
+                    </div>
+                </div>
+                </br>
+            </div>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="giorno">Giorno:</label>
+                        <select @change="getListaProf" class="custom-select transparentback" v-model="selectedgiorno" id="giorno">
+                            <option value="-Nessun giorno-">-Nessun giorno-</option>
+                            <option value="Lunedi">Lunedì</option>
+                            <option value="Martedi">Martedì</option>
+                            <option value="Mercoledi">Mercoledì</option>
+                            <option value="Giovedi">Giovedì</option>
+                            <option value="Venerdi">Venerdì</option>
+                        </select>
+                    </div><br>
+                    <div class="col-md-4">
+                        <label for="ora">Ora:</label>
+                        <select @change="getListaProf" class="custom-select transparentback" v-model="selectedorario" id="ora">
+                            <option value="-Nessun orario-">-Nessun orario-</option>
+                            <option>dalle 15 alle 16</option>
+                            <option>dalle 16 alle 17</option>
+                            <option>dalle 17 alle 18</option>
+                            <option>dalle 18 alle 19</option>
+                        </select>
+                    </div>
+                </div>
+            </div> <br>
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-8">
+                        <label for="professore">Professore:</label>
+                        <select class="custom-select transparentback" v-model="selectedprof" id="professore">
+                            <option value="-Nessun professore-">-Nessun professore-</option>
+                            <option v-for="prof in profs">{{ prof }}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="col-md-8">
+                <!-- Button is disabled when the user is not logged -->
+                <button :disabled="!islogged" v-on:click="bookLesson" class="btn btn-primary btn-block"><i class="fas fa-plus-circle"></i> Prenota</button>
+                <p v-if="!islogged" style="font-size: smaller">{{ loggedtext }}</p>
+            </div>
+
+        </div>
+    </aside>
+
+    <section id="lezioni">
+        <h4> Trova una lezione disponibile: </h4>
+        <button type="submit" class="btn btn-outline-success" v-on:click="getPrenotazioni" ><i class="fas fa-redo-alt"></i></button><br>
+
+        <div class="table-responsive table-hover" id="tablezioni">
+            <table class="table">
+                <caption>Lista ripetizioni disponibili</caption>
+                <thead>
+                <tr>
+                    <th scope="col">DOCENTE</th>
+                    <th scope="col">CORSO</th>
+                    <th scope="col">GIORNO</th>
+                    <th scope="col">ORA</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="user in users">
+                    <td>{{ user.nome }}</td>
+                    <td>{{ user.titolo }}</td>
+                    <td>{{ user.data }}</td>
+                    <td>{{ user.ora }}</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- AREA PERSONALE -->
+    <section id="areapersonale" v-if="islogged">
+
+        <!-- AREA UTENTI -->
+        <section v-if="tipo === 'utente\r\n'">
+
+            <div class="container-fluid" id="prenotazioni_u">
+                <h4> Ecco le tue prenotazioni:</h4>
+                <button type="submit" class="btn btn-outline-success" v-on:click="getRipetizioni" ><i class="fas fa-redo-alt"></i></button>
+                <button :disabled="idripe.length==0" v-on:click="disdiciRipetizioni" v-bind:class="{disabled:idripe.length==0}" class="btn btn-danger"  v-if="checkedStatus === 'attiva'"><i class="fas fa-trash"></i> Disdici</button>
+                <button :disabled="idripe.length==0" v-on:click="effettuaRipetizioni" v-bind:class="{disabled:idripe.length==0}" class="btn btn-success" v-if="checkedStatus === 'attiva'"><i class="fas fa-check"></i> Effettuata</button>
+                <br>
+                <!-- STATUS RADIO BUTTONS -->
+                <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" value="attiva" v-model="checkedStatus">attive
+                </div>
+                <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" value="effettuata" v-model="checkedStatus">effettuate
+                </div>
+                <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" value="disdetta" v-model="checkedStatus">disdette
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <caption>Lezioni dell'utente</caption>
+                        <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">NOME</th>
+                            <th scope="col">CORSO</th>
+                            <th scope="col">GIORNO</th>
+                            <th scope="col">ORA</th>
+                            <th scope="col">STATO</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="prenotazione in prenotazioni_u" v-if="prenotazione.stato === checkedStatus">
+                            <td><input type="checkbox" :value="prenotazione.id" v-model="idripe"> #{{ prenotazione.id }}</td>
+                            <td>{{ prenotazione.nome }}</td>
+                            <td>{{ prenotazione.titolo }}</td>
+                            <td>{{ prenotazione.data }}</td>
+                            <td>{{ prenotazione.ora }}</td>
+                            <td>{{ prenotazione.stato }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- AREA AMMINISTRATORE -->
+        <section v-if="tipo === 'amministratore\r\n'">
+
+            <div class="container-fluid" id="prenotazioni_a" >
+                <h4> Prenotazioni degli utenti:</h4>
+                <button type="submit" class="btn btn-outline-success" v-on:click="getAllRipetizioni" ><i class="fas fa-redo-alt"></i></button>
+                <button :disabled="idripe.length==0" v-on:click="disdiciRipetizioni" v-bind:class="{disabled:idripe.length==0}" class="btn btn-danger"  v-if="checkedStatus === 'attiva'"><i class="fas fa-trash"></i> Disdici</button>
+                <br>
+                <!-- STATUS RADIO BUTTONS -->
+                <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" value="attiva" v-model="checkedStatus">attive
+                </div>
+                <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" value="effettuata" v-model="checkedStatus">effettuate
+                </div>
+                <div class="form-check form-check-inline">
+                    <input type="radio" class="form-check-input" value="disdetta" v-model="checkedStatus">disdette
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <caption>Area amministratore</caption>
+                        <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">NOME</th>
+                            <th scope="col">CORSO</th>
+                            <th scope="col">GIORNO</th>
+                            <th scope="col">ORA</th>
+                            <th scope="col">UTENTE</th>
+                            <th scope="col">STATO</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="prenotazione in prenotazioni_a" v-if="prenotazione.stato === checkedStatus">
+                            <td><input type="checkbox" :value="prenotazione.id" v-model="idripe"> #{{ prenotazione.id }}</td>
+                            <td>{{ prenotazione.nome }}</td>
+                            <td>{{ prenotazione.titolo }}</td>
+                            <td>{{ prenotazione.data }}</td>
+                            <td>{{ prenotazione.ora }}</td>
+                            <td>{{ prenotazione.email }}</td>
+                            <td>{{ prenotazione.stato }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </section>
+</div>
+
+
+<script>
+    var indexApp = new Vue ({
+        el: '#app',
+        data: {
+                users: [],
+                profs: [],
+                materie: [],
+                docenti: [],
+                corsi: [],
+                prenotazioni_u: [],
+                prenotazioni_a: [],
+                tipo:'ospite',
+                islogged:false,
+                logged:'checksession',
+                materieaction:'getmaterie',
+                bookaction:'booklesson',
+                profaction:'getprofnames',
+                selectedprof:'-Nessun professore-',
+                selectedmateria:'-Nessuna materia-',
+                selectedgiorno:'-Nessun giorno-',
+                selectedorario:'-Nessun orario-',
+                selectedpro:'-Nessun professore-',
+                selectedmateri:'-Nessuna materia-',
+                selectedgiorn:'-Nessun giorno-',
+                selectedorari:'-Nessun orario-',
+                getRipe:'getripetizioni',
+                effRipe: 'effettuaripetizioni',
+                disRipe: 'disdiciripetizioni',
+                link:'/RipeTO/Gestore',
+                loggedtext:'Devi aver effettuato l\'accesso per prenotare una ripetizione',
+                username: '',
+                password: '',
+                errore: '',
+                loginaction: 'login',
+                checkedStatus: '',
+                idripe: [],
+                id_docente: '',
+                nome_docente: '',
+                id_corso: '',
+                titolo: '',
+        },
+        //mounted è una funzione che viene invocata quando la componente è pronta
+        mounted(){
+           this.getMaterie();
+           this.getDocenti();
+           this.checkLogged();
+           this.checkType();
+           this.getPrenotazioni();
+           this.getRipetizioni();
+           this.getAllRipetizioni();
+           this.getUsername();
+        },
+        methods:{
+            checkType: function(){
+               var self = this;
+               $.get(this.link, {action:'checkadmin'}, function (data) {
+                   if(data !== 'null\r\n') {
+                       self.tipo = data;
+                   }
+               });
+            },
+
+            getUsername: function(){
+                var self = this;
+                $.get(this.link, {action:'getusername'}, function (data) {
+                    if(data !== 'null\r\n') {
+                        self.username = data;
+                    }
+                });
+            },
+
+
+            getPrenotazioni: function(){
+                var self = this;
+                $.getJSON(this.link, {action: 'getLezioni'}, function(data) {
+                    self.users=data;
+                });
+            },
+
+            getRipetizioni:function () {
+                var self = this;
+                $.getJSON(this.link, {action: this.getRipe}, function (data) {
+                    self.prenotazioni_u = data;
+                });
+            },
+
+            getAllRipetizioni: function(){
+                var self = this;
+                $.getJSON(this.link, {action: 'getAllRipe'}, function (data) {
+                    self.prenotazioni_a = data;
+                });
+            },
+
+            getListaProf: function() {
+                this.selectedprof = "-Nessun professore-";
+                var self = this;
+                $.post(this.link, {action:this.profaction, materia:this.selectedmateria,giorno:this.selectedgiorno,ora:this.selectedorario}, function (data) {
+                    self.profs = data;
+                });
+                //return self.profs
+            },
+
+            getMaterie: function () {
+                var self = this;
+                $.post(this.link, {action:this.materieaction}, function (data) {
+                    self.materie = data;
+                });
+                //return self.materie
+            },
+            getDocenti: function () {
+                var self = this;
+                $.post(this.link, {action: 'getDocenti'}, function (data) {
+                    self.docenti = data;
+                });
+                //return self.docenti
+            },
+            addDocente:function () {
+                $.post(this.link, {action:'addDocente',nome: this.nome_docente, id:this.id_docente}, function (data) {
+                    if(Number(data)===1){
+                        alert("Professore aggiunto con successo");
+                        window.location.href = "home2.html";
+                    }
+                    else if(Number(data)===0)
+                        alert("Casella di testo vuota")
+                    else
+                        alert("C'è stato un errore")
+                });
+            },
+
+            remDocente:function () {
+                $.post(this.link, {action:'delDocente',idprofs:this.id_docente}, function (data) {
+                    if(Number(data)===1){
+                        alert("Professore eliminato con successo:\nATTENZIONE! Le lezioni già prenotate dovranno essere svolte");
+                        window.location.href = "home2.html";
+                    }
+                    else if(Number(data)===0)
+                        alert("Selezionare almeno un id")
+                    else
+                        alert("C'è stato un errore")
+                });
+            },
+
+            remCorsi:function () {
+                $.post(this.link, {action:'delmat',idcorso:this.id_corso}, function (data) {
+                    if(Number(data)===1){
+                        alert("Corso eliminato con successo:\nATTENZIONE! Le lezioni già prenotate dovranno essere svolte");
+                        window.location.href = "home2.html";
+                    }
+                    else if(Number(data)===0)
+                        alert("Selezionare almeno un id")
+                    else
+                        alert("C'è stato un errore")
+                });
+            },
+
+            addMateria:function () {
+                $.post(this.link, {action:'addmat',nome: this.titolo,id: this.id_corso}, function (data) {
+                    if(Number(data)===1){
+                        alert("Materia aggiunta con successo")
+                        window.location.href = "home2.html";
+                    }
+                    else if(Number(data)===0)
+                        alert("Casella di testo vuota")
+                    else
+                        alert("C'è stato un errore")
+                });
+            },
+
+            bookLesson: function () {
+                var self = this;
+                if( this.selectedprof !== "-Nessun professore-" &&
+                    this.selectedorario !== "-Nessun orario-" &&
+                    this.selectedgiorno !== "-Nessun giorno-" &&
+                    this.selectedmateria !== "-Nessuna materia-") {
+                    $.post(this.link, {action:this.bookaction, nome_insegnate:this.selectedprof, nome_materia:this.selectedmateria,
+                        giorno:this.selectedgiorno, ora:this.selectedorario }, function (data) {
+                        switch (Number(data)) {
+                            case 1:
+                                alert("Prenotazione avvenuta con successo");
+                                window.location.reload();
+                                break;
+                            case 0:
+                                alert("Ci dispiace ma qualcuno ha prenotato prima di te");
+                                break;
+                            case -1:
+                                alert("Qualcosa è andato storto durante la prenotazione");
+                                break;
+                            case -2:
+                                alert("Devi prima effettuare l'accesso");
+                                break;
+                            default:
+                                alert("Impossibile eseguire la richiesta");
+                                break;
+                        }
+                    });
+                }
+                else
+                    alert("Tutti i campi sono obbligatori");
+            },
+
+            addLesson: function () {
+                var self = this;
+                if( this.selectedpro !== "-Nessun professore-" &&
+                    this.selectedorari !== "-Nessun orario-" &&
+                    this.selectedgiorn !== "-Nessun giorno-" &&
+                    this.selectedmateri !== "-Nessuna materia-") {
+                    $.post(this.link, {action: 'addLesson', nome_insegnate:this.selectedpro, nome_materia:this.selectedmateri,
+                        giorno:this.selectedgiorn, ora:this.selectedorari }, function (data) {
+                        switch (Number(data)) {
+                            case 1:
+                                alert("Lezione aggiunta con successo");
+                                window.location.reload();
+                                break;
+                            case 0:
+                                alert("Impossibile aggiungere la lezione");
+                                break;
+                            case -1:
+                                alert("Qualcosa è andato storto durante la creazione");
+                                break;
+                            default:
+                                alert("Impossibile eseguire la richiesta");
+                                break;
+                        }
+                    });
+                }
+                else
+                    alert("Tutti i campi sono obbligatori");
+            },
+
+
+
+
+            remLesson: function () {
+                var self = this;
+                if( this.selectedpro !== "-Nessun professore-" &&
+                    this.selectedorari !== "-Nessun orario-" &&
+                    this.selectedgiorn !== "-Nessun giorno-" &&
+                    this.selectedmateri !== "-Nessuna materia-") {
+                    $.post(this.link, {action: 'remLesson', nome_insegnate:this.selectedpro, nome_materia:this.selectedmateri,
+                        giorno:this.selectedgiorn, ora:this.selectedorari }, function (data) {
+                        switch (Number(data)) {
+                            case 1:
+                                alert("Eliminazione avvenuta con successo");
+                                //window.location.reload();
+                                break;
+                            case 0:
+                                alert("La lezione esiste già");
+                                break;
+                            case -1:
+                                alert("Qualcosa è andato storto durante la prenotazione");
+                                break;
+                            default:
+                                alert("Impossibile eseguire la richiesta");
+                                break;
+                        }
+                    });
+                }
+                else
+                    alert("Tutti i campi sono obbligatori");
+            },
+
+
+
+            checkLogged:  function () {
+                var self = this;
+                $.post(this.link, {action: this.logged}, function (data) {
+                    switch (Number(data)) {
+                        case 1:
+                            self.islogged = true;//se loggato e sessione esiste
+                            break;
+                        case 0:
+                            self.islogged = false;
+                            break;
+                        default:
+                            self.loggedtext = 'Qualcosa è andato storto';
+                            self.islogged = false;
+                            break;
+                    }
+                });
+            },
+
+            logout:function () {
+                $.post(this.link, {action:'logout'}, function (data) {
+                    if(Number(data)===1) {
+                        window.location.reload()
+                    }else
+                        alert(data);
+                })
+            },
+
+            login:function(){
+                var self = this;
+                $.post(this.link, {action: 'login', email: this.username, psw: this.password}, function (data) {
+                    switch (Number(data)) {
+                        case 1:
+                            window.location.reload()
+                            break;
+                        case 0:
+                            window.location.reload()
+                            break;
+                        case -1:
+                            self.errore =  "Email o password non corretti";
+                            break;
+                        default:
+                            self.errore =  "Qualcosa è andato storto";
+                            break;
+                    }
+                });
+            },
+
+            effettuaRipetizioni:function () {
+                var self = this;
+                $.post(this.link, {action: this.effRipe, id: JSON.stringify(this.idripe)}, function (data) {
+                    if(Number(data)===1){
+                        alert("Operazione completata con successo")
+                        window.location.reload();
+                    }
+                    else
+                        alert("C'è stato un errore")
+                });
+            },
+
+            disdiciRipetizioni:function () {
+                var self = this;
+                $.post(this.link, {action: this.disRipe, id: JSON.stringify(this.idripe)}, function (data) {
+                    if(Number(data)===1){
+                        alert("Operazione completata con successo")
+                        window.location.reload();
+                    }
+                    else
+                        alert("C'è stato un errore")
+                });
+            }
+        }
+    });
+
+
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+</body>
+</html>
